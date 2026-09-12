@@ -6,11 +6,16 @@
 [![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/windows)
 [![Dart](https://img.shields.io/badge/Dart-3.7-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
 [![State](https://img.shields.io/badge/State-Riverpod%202.6-purple?style=for-the-badge)](https://riverpod.dev)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-blue?style=for-the-badge&logo=github)](https://github.com/Tehan-Hewage/Antigravity-Usage-Indicator/releases/tag/v1.0.0)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 **A sleek, unobtrusive floating Windows desktop notch that displays real-time Google Antigravity & Gemini quota usage with automatic live telemetry extraction.**
 
 *Unofficial community utility for monitoring Google Antigravity IDE & Gemini quota limits.*
+
+<br/>
+
+[⬇️ **Download Latest Portable Release (v1.0.0 for Windows x64)**](https://github.com/Tehan-Hewage/Antigravity-Usage-Indicator/releases/download/v1.0.0/AntigravityUsageIndicator-v1.0.0-windows-x64.zip)
 
 </div>
 
