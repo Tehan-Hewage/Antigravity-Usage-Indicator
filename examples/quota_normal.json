@@ -1,0 +1,9 @@
+{
+  "provider": "google-antigravity",
+  "model": "Gemini",
+  "quotaName": "gemini-weekly",
+  "remainingPercent": 62,
+  "plan": "Pro",
+  "resetTime": "2026-09-15T07:50:32Z",
+  "updatedAt": "2026-09-11T19:42:00+05:30"
+}

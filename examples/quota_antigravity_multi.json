@@ -1,0 +1,35 @@
+{
+  "provider": "google-antigravity",
+  "plan": "Google AI Pro",
+  "model": "Weekly",
+  "quotaName": "Weekly Limit Remaining",
+  "remainingPercent": 67,
+  "resetTime": "2026-09-16T09:05:00Z",
+  "updatedAt": "2026-09-11T21:06:00+05:30",
+  "quotas": [
+    {
+      "model": "Weekly",
+      "quotaName": "Weekly Limit Remaining",
+      "remainingPercent": 67,
+      "resetTime": "2026-09-16T09:05:00Z"
+    },
+    {
+      "model": "5-Hour",
+      "quotaName": "Five Hour Limit Remaining",
+      "remainingPercent": 71,
+      "resetTime": "2026-09-11T22:42:00Z"
+    },
+    {
+      "model": "Claude 3.7",
+      "quotaName": "Weekly Limit Remaining",
+      "remainingPercent": 72,
+      "resetTime": "2026-09-16T19:05:00Z"
+    },
+    {
+      "model": "Claude 5-Hr",
+      "quotaName": "Five Hour Limit Remaining",
+      "remainingPercent": 100,
+      "resetTime": "2026-09-11T22:42:00Z"
+    }
+  ]
+}
