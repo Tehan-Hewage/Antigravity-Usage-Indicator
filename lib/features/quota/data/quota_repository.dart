@@ -90,12 +90,17 @@ class QuotaRepository {
             f.absolute.path,
             if (isDaemon) '-RunOnce',
           ];
-          await Process.run('powershell.exe', args).timeout(const Duration(seconds: 5));
+          final result = await Process.run('powershell.exe', args).timeout(const Duration(seconds: 15));
+          if (result.exitCode == 0) {
+            LoggingService.instance.info('Sync bridge executed: ${result.stdout.toString().trim()}');
+          } else {
+            LoggingService.instance.warn('Sync bridge exit code ${result.exitCode}: ${result.stderr}');
+          }
           break;
         }
       }
     } catch (e) {
-      LoggingService.instance.warn('Sync bridge invocation skipped: $e');
+      LoggingService.instance.warn('Sync bridge invocation failed: $e');
     }
   }
 

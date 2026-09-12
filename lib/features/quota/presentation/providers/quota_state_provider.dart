@@ -49,11 +49,14 @@ class QuotaState {
 }
 
 final quotaRepositoryProvider = Provider<QuotaRepository>((ref) {
-  final settings = ref.watch(settingsNotifierProvider);
+  final isDemoMode = ref.watch(settingsNotifierProvider.select((s) => s.isDemoMode));
+  final quotaFilePath = ref.watch(settingsNotifierProvider.select((s) => s.quotaFilePath));
+  final staleThresholdMinutes = ref.watch(settingsNotifierProvider.select((s) => s.staleThresholdMinutes));
+
   final repo = QuotaRepository(
-    isDemoMode: settings.isDemoMode,
-    customFile: settings.quotaFilePath != null ? File(settings.quotaFilePath!) : null,
-    staleThresholdMinutes: settings.staleThresholdMinutes,
+    isDemoMode: isDemoMode,
+    customFile: quotaFilePath != null ? File(quotaFilePath) : null,
+    staleThresholdMinutes: staleThresholdMinutes,
   );
 
   ref.onDispose(() {
@@ -65,16 +68,29 @@ final quotaRepositoryProvider = Provider<QuotaRepository>((ref) {
 
 final quotaStateProvider = StateNotifierProvider<QuotaNotifier, QuotaState>((ref) {
   final repository = ref.watch(quotaRepositoryProvider);
-  return QuotaNotifier(repository);
+  final autoSyncInterval = ref.watch(settingsNotifierProvider.select((s) => s.autoSyncIntervalMinutes));
+  final preferredMetric = ref.watch(settingsNotifierProvider.select((s) => s.primaryMetric));
+
+  return QuotaNotifier(
+    repository,
+    defaultSyncIntervalMinutes: autoSyncInterval,
+    preferredMetric: preferredMetric,
+  );
 });
 
 class QuotaNotifier extends StateNotifier<QuotaState> {
   final QuotaRepository _repository;
+  final int defaultSyncIntervalMinutes;
+  final String? preferredMetric;
   StreamSubscription<QuotaSnapshot>? _subscription;
   Timer? _minutePulseTimer;
+  Timer? _autoSyncTimer;
 
-  QuotaNotifier(this._repository)
-      : super(QuotaState(snapshot: _repository.cachedSnapshot ?? QuotaSnapshot.missing())) {
+  QuotaNotifier(
+    this._repository, {
+    this.defaultSyncIntervalMinutes = 2,
+    this.preferredMetric,
+  }) : super(QuotaState(snapshot: _repository.cachedSnapshot ?? QuotaSnapshot.missing())) {
     _init();
   }
 
@@ -85,6 +101,9 @@ class QuotaNotifier extends StateNotifier<QuotaState> {
         isRefreshing: false,
         lastRefreshTime: DateTime.now(),
       );
+      if (preferredMetric != null) {
+        selectPreferredMetric(preferredMetric!);
+      }
     });
 
     // Minute timer for countdown label recalculation without hitting disk
@@ -92,7 +111,12 @@ class QuotaNotifier extends StateNotifier<QuotaState> {
       state = state.copyWith(countdownPulse: state.countdownPulse + 1);
     });
 
-    // Initial load
+    // Automatically guarantee background auto-sync timer is ALWAYS active
+    if (defaultSyncIntervalMinutes > 0) {
+      startAutoSync(interval: Duration(minutes: defaultSyncIntervalMinutes));
+    }
+
+    // Initial load from provider
     refresh();
   }
 
@@ -135,8 +159,6 @@ class QuotaNotifier extends StateNotifier<QuotaState> {
   void nextDemoPreset() {
     _repository.nextDemoPreset();
   }
-
-  Timer? _autoSyncTimer;
 
   /// Starts background auto-synchronization loop.
   void startAutoSync({Duration interval = const Duration(minutes: 2)}) {

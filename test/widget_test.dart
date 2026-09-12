@@ -9,12 +9,15 @@ void main() {
   testWidgets('AntigravityApp launches and renders compact floating pill', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     final repo = await SettingsRepository.create();
+    final container = ProviderContainer(
+      overrides: [
+        settingsRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
 
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          settingsRepositoryProvider.overrideWithValue(repo),
-        ],
+      UncontrolledProviderScope(
+        container: container,
         child: const AntigravityApp(),
       ),
     );
@@ -23,5 +26,8 @@ void main() {
 
     // Verify presence of Gemini model label
     expect(find.text('Gemini'), findsOneWidget);
+
+    // Explicitly dispose container to cancel all background timers
+    container.dispose();
   });
 }
