@@ -62,6 +62,27 @@ class DateTimeUtils {
     }
   }
 
+  /// Formats a precise relative timestamp with second/minute granularity (e.g. "Just now", "25s ago", "2 min ago").
+  static String formatPreciseRelativeTime(DateTime dateTime, {DateTime? now}) {
+    final currentTime = now ?? DateTime.now();
+    final diff = currentTime.difference(dateTime);
+
+    if (diff.isNegative || diff.inSeconds < 10) {
+      return 'Just now';
+    } else if (diff.inSeconds < 60) {
+      return '${diff.inSeconds}s ago';
+    } else if (diff.inMinutes < 60) {
+      final m = diff.inMinutes;
+      return '$m min ago';
+    } else if (diff.inHours < 24 && dateTime.day == currentTime.day) {
+      return '${diff.inHours}h ago';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays}d ago';
+    } else {
+      return DateFormat('MMM d').format(dateTime.toLocal());
+    }
+  }
+
   /// Safely parses a dynamic input into a DateTime.
   static DateTime? parseDateTime(dynamic value) {
     if (value == null) return null;

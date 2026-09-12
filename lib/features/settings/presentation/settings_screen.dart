@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:antigravity_usage_indicator/core/constants/app_constants.dart';
 import 'package:antigravity_usage_indicator/core/services/window_service.dart';
 import 'package:antigravity_usage_indicator/core/theme/app_theme.dart';
@@ -32,14 +34,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
     {'title': 'About', 'icon': Icons.info_outline_rounded},
   ];
 
+  Timer? _tickerTimer;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: _tabs.length, vsync: this);
+    // Refresh UI every 2 seconds so relative time ticker counts up accurately
+    _tickerTimer = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    _tickerTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -183,8 +192,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> with SingleTick
   // TAB 1: LIVE SYNC & TELEMETRY
   // ==========================================
   Widget _buildLiveSyncTab(dynamic settings, SettingsNotifier notifier, QuotaState quotaState) {
-    final lastRefresh = quotaState.lastRefreshTime;
-    final lastSyncText = lastRefresh != null ? DateTimeUtils.formatRelativeTime(lastRefresh) : 'Never';
+    final syncTime = quotaState.snapshot.updatedAt;
+    final isMissing = quotaState.snapshot.isMissing;
+    final timeFormatted = !isMissing ? DateFormat('h:mm:ss a').format(syncTime.toLocal()) : 'Never';
+    final relativeText = !isMissing ? DateTimeUtils.formatPreciseRelativeTime(syncTime) : 'Never';
+    final lastSyncText = !isMissing ? '$relativeText ($timeFormatted)' : 'Never';
     final allQuotas = quotaState.allQuotas;
 
     return ListView(
